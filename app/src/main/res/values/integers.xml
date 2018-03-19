@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer name="MODO_POPULARITY">0</integer>
+    <integer name="MODO_TOPRATED">1</integer>
+    <integer name="PAGINA_INICIO">1</integer>
+
+</resources>

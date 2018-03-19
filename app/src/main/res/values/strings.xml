@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Filmes Famosos - parte1</string>
+    <string name="order_popularity">Popularidade</string>
+    <string name="order_votes">Top Rated</string>
+    <string name="refresh">Refresh</string>
+</resources>
