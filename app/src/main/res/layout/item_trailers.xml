@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="48dp"
+        android:layout_marginStart="48dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trailer X"
+        android:layout_marginLeft="48dp"
+        android:layout_marginStart="48dp"
+        app:layout_constraintLeft_toRightOf="@id/playButton"/>
+
+</android.support.constraint.ConstraintLayout>

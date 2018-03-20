@@ -132,7 +132,6 @@
                 android:id="@+id/rv_trailers"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-
                 app:layout_constraintTop_toBottomOf="@id/labelTrailers">
             </android.support.v7.widget.RecyclerView>
         </android.support.constraint.ConstraintLayout>
