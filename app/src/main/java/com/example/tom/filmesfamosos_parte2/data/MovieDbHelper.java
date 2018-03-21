@@ -35,7 +35,9 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                         MovieContract.MovieEntry.COLUMN_RATE   + " REAL NOT NULL, "                    +
                         MovieContract.MovieEntry.COLUMN_DESCRIPTION   + " TEXT NOT NULL, "                    +
 
-                        MovieContract.MovieEntry.COLUMN_GENRE + " TEXT"            + ");";
+                        MovieContract.MovieEntry.COLUMN_GENRE + " TEXT,"            +
+
+                        " UNIQUE (" + MovieContract.MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
 

@@ -1,8 +1,10 @@
 package com.example.tom.filmesfamosos_parte2;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +15,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tom.filmesfamosos_parte2.data.MovieContentProvider;
+import com.example.tom.filmesfamosos_parte2.data.MovieContract;
 import com.example.tom.filmesfamosos_parte2.databinding.ActivityDetailsBinding;
 import com.example.tom.filmesfamosos_parte2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
+
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_MOVIE_ID;
 
 
 /**
@@ -29,9 +35,11 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
     private Context context;
     private String MODO = "modo anterior";
     private int MODO_ANTERIOR;
+    private Movie movie = null;
     private static final String TAG = DetailsActivity.class.getCanonicalName();
 
     private ActivityDetailsBinding mDetailsBinding;
+    private MovieContentProvider mContentProvider;
 
 
     @Override
@@ -43,6 +51,8 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         Integer id = i.getIntExtra(Intent.EXTRA_TEXT,1);
         MODO_ANTERIOR = i.getIntExtra(MODO, 1);
         loadMovie(id);
+        mContentProvider = new MovieContentProvider();
+
     }
 
     //COMO UNICO ITEM DE MENU NESSA ACTIVITY EH O BACK BUTTON
@@ -101,7 +111,7 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
 
     @Override
     public void processFinish(Object output) {
-        Movie movie = (Movie) output;
+        movie = (Movie) output;
         URL url = NetworkUtils.posterUrl(movie.getPoster_path());
         showActivity();
         Picasso.with(context).load(url.toString()).into(mDetailsBinding.poster);
@@ -113,8 +123,30 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         mDetailsBinding.descricaoFilme.setText(movie.getOverview());
         mDetailsBinding.viewLight.setVisibility(View.VISIBLE);
         mDetailsBinding.labelTrailers.setVisibility(View.VISIBLE);
+    }
+
+    public void onClick(View view){
+
+        ContentValues values = new ContentValues();
+
+        if(movie != null){
+
+            values.put(COLUMN_MOVIE_ID, movie.getId());
+            values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
+            values.put(MovieContract.MovieEntry.COLUMN_YEAR, movie.getRelease_date());
+            values.put(MovieContract.MovieEntry.COLUMN_RATE, movie.getVote_average());
+            values.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movie.getOverview());
+            values.put(MovieContract.MovieEntry.COLUMN_LENGTH, "x");
+            values.put(MovieContract.MovieEntry.COLUMN_GENRE, "x");
+            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        }
+
+
+
 
 
     }
+
+
 
 }

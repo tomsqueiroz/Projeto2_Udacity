@@ -93,6 +93,7 @@
                 android:textColor="@color/colorPrimaryLight"
                 app:layout_constraintLeft_toRightOf="@id/poster"
                 app:layout_constraintTop_toBottomOf="@id/notaFilme"
+                android:onClick="onClick"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -107,7 +108,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginEnd="16dp"
-                android:padding="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:id="@+id/descricaoFilme"/>
             <View
                 android:layout_width="wrap_content"
