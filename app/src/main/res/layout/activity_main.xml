@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.tom.filmesfamosos_parte1.MainActivity"
+    tools:context="com.example.tom.filmesfamosos_parte2.MainActivity"
     android:background="@color/colorBackGround">
 
     <android.support.v7.widget.RecyclerView

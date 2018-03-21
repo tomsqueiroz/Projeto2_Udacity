@@ -1,4 +1,4 @@
-package com.example.tom.filmesfamosos_parte1.data;
+package com.example.tom.filmesfamosos_parte2.data;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
