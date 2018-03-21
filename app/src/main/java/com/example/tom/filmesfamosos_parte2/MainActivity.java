@@ -2,6 +2,8 @@ package com.example.tom.filmesfamosos_parte2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.tom.filmesfamosos_parte2.data.MovieContract;
 import com.example.tom.filmesfamosos_parte2.utilities.NetworkUtils;
 
 import java.net.URL;
@@ -67,22 +70,45 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         });
     }
 
-
+    // mode == 3 significa que é pra acessar favoritos
     public void loadMoviesData(int inicio, int mode){
 
-        if(NetworkUtils.connection_ok(getApplicationContext())){
+        if(NetworkUtils.connection_ok(getApplicationContext()) && mode != 3){
             mMoviesAdapter.setImages(urls, ids);
             progressBar.setVisibility(View.VISIBLE);
             new MovieServiceSimple(this, this).execute(mode, inicio);
             PAGINA_ATUAL = inicio;
 
         }else{
-            Toast toast = Toast.makeText(getApplicationContext(), "Não conectado a internet", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Sem internet, apenas favoritos", Toast.LENGTH_SHORT);
             toast.show();
+            queryContentProvider();
+            PAGINA_ATUAL = inicio;
             progressBar.setVisibility(View.INVISIBLE);
         }
+    }
 
+    private void queryContentProvider(){
+        urls.clear();
+        ids.clear();
+        Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null,
+                null,
+                null,
+                null,
+                null);
 
+        if(cursor != null){
+            cursor.moveToFirst();
+            for(int i = 0; i < cursor.getCount(); ++i){
+                URL posterPath = NetworkUtils.posterUrl(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERPATH)));
+                urls.add(posterPath);
+                ids.add(cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID)));
+            }
+        }
+        cursor.close();
+        if(urls.size() > 0 && ids.size() > 0){
+            mMoviesAdapter.setImages(urls, ids);
+        }
     }
 
 
@@ -154,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             ids.clear();
             PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
             loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
+        }else if(id == R.id.action_favorites){
+
+
         }
         return super.onOptionsItemSelected(item);
     }

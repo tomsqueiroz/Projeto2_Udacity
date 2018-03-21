@@ -3,6 +3,7 @@ package com.example.tom.filmesfamosos_parte2;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +24,14 @@ import com.squareup.picasso.Picasso;
 
 import java.net.URL;
 
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_DESCRIPTION;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_GENRE;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_LENGTH;
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_MOVIE_ID;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_POSTERPATH;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_RATE;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_TITLE;
+import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_YEAR;
 
 
 /**
@@ -78,10 +86,37 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
             mDetailsBinding.progressBar.setVisibility(View.VISIBLE);
             new MovieServiceComplete(context, this).execute(id);
         }else{
-            Toast toast = Toast.makeText(getApplicationContext(), "Não conectado a internet", Toast.LENGTH_SHORT);
-            toast.show();
+            clearActivity();
             mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
+            queryAndShow();
         }
+    }
+
+    public void queryAndShow(){
+
+        Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null,
+                null,
+                null,
+                null,
+                null);
+
+        if(cursor != null){
+            cursor.moveToFirst();
+            for(int i = 0; i < cursor.getCount(); ++i){
+                int movieId = cursor.getInt(cursor.getColumnIndex(COLUMN_MOVIE_ID));
+                String movieTitle = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+                String moviePosterPath = cursor.getString(cursor.getColumnIndex(COLUMN_POSTERPATH));
+                String movieYear = Integer.toString(cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR)));
+                int movieLength = cursor.getInt(cursor.getColumnIndex(COLUMN_LENGTH));
+                int movieRate = cursor.getInt(cursor.getColumnIndex(COLUMN_RATE));
+                String movieDescription = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                String movieGenre = cursor.getString(cursor.getColumnIndex(COLUMN_GENRE));
+                Movie mov = new Movie(0, movieId, true, movieRate, movieTitle, 0, moviePosterPath, null, null, null, null, false, movieDescription, movieYear);
+                processFinish(mov);
+            }
+        }
+        cursor.close();
+
     }
 
     public void clearActivity(){
@@ -130,7 +165,6 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         ContentValues values = new ContentValues();
 
         if(movie != null){
-
             values.put(COLUMN_MOVIE_ID, movie.getId());
             values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
             values.put(MovieContract.MovieEntry.COLUMN_YEAR, movie.getRelease_date());
@@ -138,15 +172,8 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
             values.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movie.getOverview());
             values.put(MovieContract.MovieEntry.COLUMN_LENGTH, "x");
             values.put(MovieContract.MovieEntry.COLUMN_GENRE, "x");
+            values.put(MovieContract.MovieEntry.COLUMN_POSTERPATH, movie.getPoster_path());
             getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
         }
-
-
-
-
-
     }
-
-
-
 }

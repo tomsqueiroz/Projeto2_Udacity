@@ -28,6 +28,7 @@ public class MovieContract {
         public static final String COLUMN_RATE = "movie_rate";
         public static final String COLUMN_DESCRIPTION = "movie_description";
         public static final String COLUMN_GENRE = "movie_genre";
+        public static final String COLUMN_POSTERPATH = "movie_posterpath";
 
     }
 

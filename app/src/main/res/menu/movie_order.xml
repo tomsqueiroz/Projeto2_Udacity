@@ -13,6 +13,11 @@
         android:title="@string/order_votes"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_favorites"
+        android:title="Favoritos"
+        app:showAsAction="never">
+    </item>
+    <item
         android:id="@+id/action_refresh"
         app:showAsAction="ifRoom"
         android:title="@string/refresh"/>

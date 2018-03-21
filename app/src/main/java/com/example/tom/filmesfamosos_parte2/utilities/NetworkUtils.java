@@ -40,7 +40,7 @@ public class NetworkUtils {
 
 
    /****************YOUR API KEY HERE**************************/
-    private static String APIKEY = "6504e9410a7e0e9827f2fe1f4d0e4b95";
+    private static String APIKEY = "YOUR API KEY HERE";
 
 
     private static String APIKEY_PARAM = "api_key";
