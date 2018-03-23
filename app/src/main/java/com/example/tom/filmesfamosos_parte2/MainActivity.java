@@ -33,11 +33,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private List<Integer> ids;
     private int MODO_POPULARITY = 0;
     private int MODO_TOPRATED = 1;
+    private int MODO_FAVORITOS = 2;
     private int MODO_ATUAL = MODO_TOPRATED;
     private String MODO = "modo anterior";
-
-
-
 
 
     @Override
@@ -70,17 +68,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         });
     }
 
-    // mode == 3 significa que é pra acessar favoritos
+
     public void loadMoviesData(int inicio, int mode){
 
-        if(NetworkUtils.connection_ok(getApplicationContext()) && mode != 3){
+        if(NetworkUtils.connection_ok(getApplicationContext()) && mode != MODO_FAVORITOS){
             mMoviesAdapter.setImages(urls, ids);
             progressBar.setVisibility(View.VISIBLE);
             new MovieServiceSimple(this, this).execute(mode, inicio);
             PAGINA_ATUAL = inicio;
-
         }else{
-            Toast toast = Toast.makeText(getApplicationContext(), "Sem internet, apenas favoritos", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Apenas favoritos", Toast.LENGTH_SHORT);
             toast.show();
             queryContentProvider();
             PAGINA_ATUAL = inicio;
@@ -103,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 URL posterPath = NetworkUtils.posterUrl(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERPATH)));
                 urls.add(posterPath);
                 ids.add(cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID)));
+                cursor.moveToNext();
             }
         }
         cursor.close();
@@ -181,8 +179,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
             loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
         }else if(id == R.id.action_favorites){
-
-
+            urls.clear();
+            ids.clear();
+            PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
+            MODO_ATUAL = MODO_FAVORITOS;
+            loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
         }
         return super.onOptionsItemSelected(item);
     }

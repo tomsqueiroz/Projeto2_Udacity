@@ -79,45 +79,51 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         return true;
     }
 
-    public void loadMovie(int id){
-
-        if(NetworkUtils.connection_ok(getApplicationContext())){
+    public void loadMovie(int id) {
+        Cursor cursor = queryMovie(id);
+        if (cursor != null && cursor.getCount() != 0) {
+            clearActivity();
+            mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
+            showMovie(cursor);
+        } else if (NetworkUtils.connection_ok(getApplicationContext())) {
+            mDetailsBinding.botaoAddFavorito.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            mDetailsBinding.botaoAddFavorito.setTextColor(getResources().getColor(R.color.colorPrimary));
             clearActivity();
             mDetailsBinding.progressBar.setVisibility(View.VISIBLE);
             new MovieServiceComplete(context, this).execute(id);
-        }else{
-            clearActivity();
-            mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
-            queryAndShow();
         }
     }
 
-    public void queryAndShow(){
+    public Cursor queryMovie(int id){
 
         Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null,
-                null,
-                null,
+                COLUMN_MOVIE_ID + "=?",
+                new String[]{Integer.toString(id)},
                 null,
                 null);
 
-        if(cursor != null){
-            cursor.moveToFirst();
-            for(int i = 0; i < cursor.getCount(); ++i){
-                int movieId = cursor.getInt(cursor.getColumnIndex(COLUMN_MOVIE_ID));
-                String movieTitle = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
-                String moviePosterPath = cursor.getString(cursor.getColumnIndex(COLUMN_POSTERPATH));
-                String movieYear = Integer.toString(cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR)));
-                int movieLength = cursor.getInt(cursor.getColumnIndex(COLUMN_LENGTH));
-                int movieRate = cursor.getInt(cursor.getColumnIndex(COLUMN_RATE));
-                String movieDescription = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-                String movieGenre = cursor.getString(cursor.getColumnIndex(COLUMN_GENRE));
-                Movie mov = new Movie(0, movieId, true, movieRate, movieTitle, 0, moviePosterPath, null, null, null, null, false, movieDescription, movieYear);
-                processFinish(mov);
-            }
+        return cursor;
+    }
+
+    public void showMovie(Cursor cursor){
+
+        cursor.moveToFirst();
+        for(int i = 0; i < cursor.getCount(); ++i){
+            int movieId = cursor.getInt(cursor.getColumnIndex(COLUMN_MOVIE_ID));
+            String movieTitle = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+            String moviePosterPath = cursor.getString(cursor.getColumnIndex(COLUMN_POSTERPATH));
+            String movieYear = Integer.toString(cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR)));
+            int movieLength = cursor.getInt(cursor.getColumnIndex(COLUMN_LENGTH));
+            int movieRate = cursor.getInt(cursor.getColumnIndex(COLUMN_RATE));
+            String movieDescription = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+            String movieGenre = cursor.getString(cursor.getColumnIndex(COLUMN_GENRE));
+            Movie mov = new Movie(0, movieId, true, movieRate, movieTitle, 0, moviePosterPath, null, null, null, null, false, movieDescription, movieYear);
+            cursor.moveToNext();
+            processFinish(mov);
         }
-        cursor.close();
 
     }
+
 
     public void clearActivity(){
         mDetailsBinding.tituloFilme.setVisibility(View.INVISIBLE);
@@ -150,6 +156,7 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         URL url = NetworkUtils.posterUrl(movie.getPoster_path());
         showActivity();
         Picasso.with(context).load(url.toString()).into(mDetailsBinding.poster);
+        mDetailsBinding.filmeId.setText(Integer.toString(movie.getId()));
         mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
         mDetailsBinding.tituloFilme.setText(movie.getTitle());
         mDetailsBinding.anoFilme.setText(movie.getRelease_date());
@@ -161,19 +168,26 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
     }
 
     public void onClick(View view){
-
-        ContentValues values = new ContentValues();
-
-        if(movie != null){
-            values.put(COLUMN_MOVIE_ID, movie.getId());
-            values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
-            values.put(MovieContract.MovieEntry.COLUMN_YEAR, movie.getRelease_date());
-            values.put(MovieContract.MovieEntry.COLUMN_RATE, movie.getVote_average());
-            values.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movie.getOverview());
-            values.put(MovieContract.MovieEntry.COLUMN_LENGTH, "x");
-            values.put(MovieContract.MovieEntry.COLUMN_GENRE, "x");
-            values.put(MovieContract.MovieEntry.COLUMN_POSTERPATH, movie.getPoster_path());
-            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        Cursor cursor = queryMovie(Integer.parseInt(mDetailsBinding.filmeId.getText().toString()));
+        if (cursor != null && cursor.getCount() != 0) {
+            mDetailsBinding.botaoAddFavorito.setTextColor(getResources().getColor(R.color.colorPrimary));
+            mDetailsBinding.botaoAddFavorito.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?",new String[]{mDetailsBinding.filmeId.getText().toString()});
+        }else{
+            mDetailsBinding.botaoAddFavorito.setTextColor(getResources().getColor(R.color.colorPrimaryLight));
+            mDetailsBinding.botaoAddFavorito.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            ContentValues values = new ContentValues();
+            if(movie != null){
+                values.put(COLUMN_MOVIE_ID, movie.getId());
+                values.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
+                values.put(MovieContract.MovieEntry.COLUMN_YEAR, movie.getRelease_date());
+                values.put(MovieContract.MovieEntry.COLUMN_RATE, movie.getVote_average());
+                values.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movie.getOverview());
+                values.put(MovieContract.MovieEntry.COLUMN_LENGTH, "x");
+                values.put(MovieContract.MovieEntry.COLUMN_GENRE, "x");
+                values.put(MovieContract.MovieEntry.COLUMN_POSTERPATH, movie.getPoster_path());
+                getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+            }
         }
     }
 }
