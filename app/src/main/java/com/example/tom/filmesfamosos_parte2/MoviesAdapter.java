@@ -34,9 +34,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.Movies_Ada
         this.context = context;
     }
 
-
-
-
     public class Movies_AdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final ImageView mImage;

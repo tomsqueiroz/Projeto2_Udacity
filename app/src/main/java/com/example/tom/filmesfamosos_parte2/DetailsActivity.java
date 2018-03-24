@@ -9,6 +9,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,7 +25,10 @@ import com.example.tom.filmesfamosos_parte2.databinding.ActivityDetailsBinding;
 import com.example.tom.filmesfamosos_parte2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+
 import java.net.URL;
+import java.util.List;
 
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_DESCRIPTION;
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_GENRE;
@@ -38,7 +44,7 @@ import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry
  * Created by Tom on 09/02/2018.
  */
 
-public class DetailsActivity extends AppCompatActivity implements AsyncTaskDelegate{
+public class DetailsActivity extends AppCompatActivity implements AsyncTaskDelegate, TrailersAdapter.TrailersAdapterOnClickHandler{
 
     private Context context;
     private String MODO = "modo anterior";
@@ -48,6 +54,8 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
 
     private ActivityDetailsBinding mDetailsBinding;
     private MovieContentProvider mContentProvider;
+    private RecyclerView mRecyclerView;
+    private List<URL> youtubeURLS = null;
 
 
     @Override
@@ -61,6 +69,7 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         loadMovie(id);
         mContentProvider = new MovieContentProvider();
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_trailers);
     }
 
     //COMO UNICO ITEM DE MENU NESSA ACTIVITY EH O BACK BUTTON
@@ -152,22 +161,39 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
 
     @Override
     public void processFinish(Object output) {
-        movie = (Movie) output;
-        URL url = NetworkUtils.posterUrl(movie.getPoster_path());
-        showActivity();
-        Picasso.with(context).load(url.toString()).into(mDetailsBinding.poster);
-        mDetailsBinding.filmeId.setText(Integer.toString(movie.getId()));
-        mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
-        mDetailsBinding.tituloFilme.setText(movie.getTitle());
-        mDetailsBinding.anoFilme.setText(movie.getRelease_date());
-        mDetailsBinding.notaFilme.setText(movie.getVote_average() + "/10");
-        mDetailsBinding.botaoAddFavorito.setVisibility(View.VISIBLE);
-        mDetailsBinding.descricaoFilme.setText(movie.getOverview());
-        mDetailsBinding.viewLight.setVisibility(View.VISIBLE);
-        mDetailsBinding.labelTrailers.setVisibility(View.VISIBLE);
+
+        if(output instanceof Movie) {
+            movie = (Movie) output;
+            URL url = NetworkUtils.posterUrl(movie.getPoster_path());
+            showActivity();
+            Picasso.with(context).load(url.toString()).into(mDetailsBinding.poster);
+            mDetailsBinding.filmeId.setText(Integer.toString(movie.getId()));
+            mDetailsBinding.progressBar.setVisibility(View.INVISIBLE);
+            mDetailsBinding.tituloFilme.setText(movie.getTitle());
+            mDetailsBinding.anoFilme.setText(movie.getRelease_date());
+            mDetailsBinding.notaFilme.setText(movie.getVote_average() + "/10");
+            mDetailsBinding.botaoAddFavorito.setVisibility(View.VISIBLE);
+            mDetailsBinding.descricaoFilme.setText(movie.getOverview());
+            mDetailsBinding.viewLight.setVisibility(View.VISIBLE);
+            mDetailsBinding.labelTrailers.setVisibility(View.VISIBLE);
+            new MovieServiceVideoURL(this, this).execute(movie.getId());
+        }else if(output instanceof String){
+            try {
+                youtubeURLS = NetworkUtils.parseVideoURLS((String) output)  ;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+            mRecyclerView.setLayoutManager(layoutManager);
+            mRecyclerView.setHasFixedSize(true);
+            TrailersAdapter trailersAdapter = new TrailersAdapter(this, this, youtubeURLS.size());
+            mRecyclerView.setAdapter(trailersAdapter);
+        }
+
     }
 
-    public void onClick(View view){
+    public void onClickFavorito(View view){
         Cursor cursor = queryMovie(Integer.parseInt(mDetailsBinding.filmeId.getText().toString()));
         if (cursor != null && cursor.getCount() != 0) {
             mDetailsBinding.botaoAddFavorito.setTextColor(getResources().getColor(R.color.colorPrimary));
@@ -189,5 +215,14 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
                 getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
             }
         }
+    }
+
+    @Override
+    public void onClickTrailer(int adapter_position) {
+        if(youtubeURLS != null){
+            Intent implicitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeURLS.get(adapter_position).toString()));
+            startActivity(implicitIntent);
+        }
+
     }
 }

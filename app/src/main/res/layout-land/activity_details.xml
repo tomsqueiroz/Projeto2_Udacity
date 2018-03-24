@@ -7,7 +7,6 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <android.support.constraint.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,8 +25,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:layout_marginLeft="32dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:text="NomeFilme"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
@@ -37,9 +36,9 @@
                 android:id="@+id/poster"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="48dp"
-                android:layout_marginStart="48dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/viewDark"
                 tools:layout_editor_absoluteY="110dp" />
@@ -83,7 +82,7 @@
                 app:layout_constraintLeft_toRightOf="@id/poster"
                 />
             <Button
-                android:text="Add Favorite"
+                android:text="Favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/botaoAddFavorito"
@@ -94,16 +93,23 @@
                 android:textColor="@color/colorPrimaryLight"
                 app:layout_constraintLeft_toRightOf="@id/poster"
                 app:layout_constraintTop_toBottomOf="@id/notaFilme"
+                android:onClick="onClickFavorito"
                 />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Descrição"
+                android:layout_marginTop="48dp"
                 android:layout_marginBottom="16dp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/viewLight"
-                android:layout_marginLeft="48dp"
-                android:layout_marginStart="48dp"
+                app:layout_constraintTop_toBottomOf="@id/botaoAddFavorito"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:id="@+id/descricaoFilme"/>
             <View
                 android:layout_width="wrap_content"
@@ -111,8 +117,8 @@
                 android:background="@android:color/white"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginTop="32dp"
-                app:layout_constraintTop_toBottomOf="@id/poster"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/descricaoFilme"
                 android:id="@+id/viewLight"
                 >
             </View>
@@ -122,10 +128,12 @@
                 android:id="@+id/labelTrailers"
                 android:text="Label Trailers"
                 android:layout_marginTop="16dp"
-                android:layout_marginLeft="48dp"
-                android:layout_marginStart="48dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewLight"/>
+                app:layout_constraintTop_toBottomOf="@id/viewLight"
+                />
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="wrap_content"
@@ -135,6 +143,12 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/labelTrailers">
             </android.support.v7.widget.RecyclerView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:id="@+id/filmeId"/>
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </layout>

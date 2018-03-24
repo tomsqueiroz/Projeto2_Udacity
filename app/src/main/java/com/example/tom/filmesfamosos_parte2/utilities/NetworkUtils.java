@@ -33,7 +33,9 @@ public class NetworkUtils {
 
     private static final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w342/";
-    private static final String MOVIE_BASE_URl = "https://api.themoviedb.org/3/movie";
+    private static final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie";
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch";
+
 
 
 
@@ -74,7 +76,7 @@ public class NetworkUtils {
 
 
     public static URL Movie_URL(int id){
-        Uri builtUri = Uri.parse(MOVIE_BASE_URl).buildUpon()
+        Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
                 .appendPath(Integer.toString(id))
                 .appendQueryParameter(APIKEY_PARAM, APIKEY)
                 .build();
@@ -106,10 +108,23 @@ public class NetworkUtils {
         }
         Log.d(TAG, "URL = " + url);
         return url;
-
-
-
     }
+
+    public static URL videosUrl(int id){
+
+        Uri builtUri = Uri.parse(MOVIE_BASE_URL + "/" + Integer.toString(id) + "/videos").buildUpon()
+                .appendQueryParameter(APIKEY_PARAM, APIKEY)
+                .build();
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        }catch (MalformedURLException e){
+            e.printStackTrace();
+        }
+        Log.d(TAG, "URL = " + url);
+        return url;
+    }
+
 
 
     public static URL posterUrl(String poster){
@@ -124,14 +139,6 @@ public class NetworkUtils {
         }
         return url;
     }
-
-
-
-
-
-
-
-
 
 
     public static String getResponseFromHttpUrl (URL url) throws IOException{
@@ -155,6 +162,37 @@ public class NetworkUtils {
             urlConnection.disconnect();
         }
     }
+
+    public static List<URL> parseVideoURLS(String json) throws JSONException{
+
+        final String RESULTS_LIST = "results";
+        final String KEY = "key";
+        JSONObject videosURLJson = new JSONObject(json);
+        List<URL> listaURLS = new ArrayList<>();
+        JSONArray videosARRAy = videosURLJson.getJSONArray(RESULTS_LIST);
+        String linkVideo;
+
+        for(int i = 0; i < videosARRAy.length(); ++i){
+            JSONObject videosObject = videosARRAy.getJSONObject(i);
+            linkVideo = videosObject.getString(KEY);
+            listaURLS.add(parseYoutubeURLS(linkVideo));
+        }
+        return listaURLS;
+    }
+
+    public static URL parseYoutubeURLS(String videoId){
+
+        Uri builtUri = Uri.parse(YOUTUBE_BASE_URL).buildUpon().appendQueryParameter("v", videoId).build();
+        URL url =null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+
 
 
     public static List<MovieSimple> parseSimple(String json) throws JSONException{
