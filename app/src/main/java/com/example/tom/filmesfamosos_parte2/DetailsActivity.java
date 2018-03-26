@@ -112,7 +112,7 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
             String movieYear = Integer.toString(cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR)));
             int movieRate = cursor.getInt(cursor.getColumnIndex(COLUMN_RATE));
             String movieDescription = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-            Movie mov = new Movie(0, movieId, true, movieRate, movieTitle, 0, moviePosterPath, null, null, null, null, false, movieDescription, movieYear);
+            Movie mov = new Movie(0, movieId, movieRate, movieTitle, 0, moviePosterPath, null, null, null, movieDescription, movieYear);
             cursor.moveToNext();
             processFinish(mov);
         }

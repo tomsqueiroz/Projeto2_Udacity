@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private int MODO_ATUAL = MODO_TOPRATED;
     private String MODO = "modo anterior";
     private static final String MODO_ATUAL_CALLBACK_STRING = "modoatual_callback";
+    private static final String PAGINA_ATUAL_CALLBACK_STRING = "paginaatual_callback";
 
 
     @Override
@@ -66,12 +67,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(MODO_ATUAL_CALLBACK_STRING)) {
                 MODO_ATUAL = savedInstanceState.getInt(MODO_ATUAL_CALLBACK_STRING);
+                PAGINA_ATUAL = savedInstanceState.getInt(PAGINA_ATUAL_CALLBACK_STRING);
             }
         }else{
             MODO_ATUAL = MODO_POPULARITY;
+            PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
         }
-        loadMoviesData(getResources().getInteger(R.integer.PAGINA_INICIO), MODO_ATUAL);
-        PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
+        loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
     }
 
 
@@ -82,12 +84,18 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             progressBar.setVisibility(View.VISIBLE);
             new MovieServiceSimple(this, this).execute(mode, inicio);
             PAGINA_ATUAL = inicio;
-        }else{
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }else if(mode == MODO_FAVORITOS){
             Toast toast = Toast.makeText(getApplicationContext(), "Apenas favoritos", Toast.LENGTH_SHORT);
             toast.show();
             queryContentProvider();
             PAGINA_ATUAL = inicio;
             progressBar.setVisibility(View.INVISIBLE);
+        }else if(!NetworkUtils.connection_ok(getApplicationContext())){
+            Toast toast = Toast.makeText(getApplicationContext(), "Sem Conexão à Internet", Toast.LENGTH_SHORT);
+            toast.show();
+            progressBar.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -112,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         cursor.close();
         if(urls.size() > 0 && ids.size() > 0){
             mMoviesAdapter.setImages(urls, ids);
+        }else{
+            mRecyclerView.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -198,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(MODO_ATUAL_CALLBACK_STRING, MODO_ATUAL);
+        outState.putInt(PAGINA_ATUAL_CALLBACK_STRING, PAGINA_ATUAL);
     }
 
 

@@ -229,7 +229,7 @@ public class NetworkUtils {
 
     public static List<MovieSimple> parseSimple(String json) throws JSONException{
 
-
+        if(json == null) return null;
         JSONObject moviesJson = new JSONObject(json);
         List<MovieSimple> movies = new ArrayList<>();
         final String RESULTS_LIST = "results";
@@ -237,6 +237,7 @@ public class NetworkUtils {
 
         final int INVALIDKEY_CODE = 7;
         final int RESOURCENOTFOUND = 34;
+
 
         if(moviesJson.has(STATUS_CODE)){
 
@@ -259,6 +260,7 @@ public class NetworkUtils {
         JSONArray movieArray = moviesJson.getJSONArray(RESULTS_LIST);
         int id;
         String poster_path;
+        if(movieArray == null)  return null;
         for(int i = 0; i < movieArray.length(); ++i){
             JSONObject movieObject = movieArray.getJSONObject(i);
             id = movieObject.getInt(MOVIE_ID);
@@ -330,8 +332,8 @@ public class NetworkUtils {
             genre_names[x] = object.optString(MOVIE_GENRENAME);
 
         }
-        Movie movie = new Movie(vote_count,id,video,vote_average,title,popularity,poster_path,original_language,
-                                    original_title, genre_names, backdrop_path, adult, overview, release_date);
+        Movie movie = new Movie(vote_count,id, vote_average,title,popularity,poster_path,original_language,
+                                    original_title, backdrop_path, overview, release_date);
         return movie;
     }
 
