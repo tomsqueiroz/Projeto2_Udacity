@@ -2,6 +2,7 @@ package com.example.tom.filmesfamosos_parte2;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.example.tom.filmesfamosos_parte2.utilities.NetworkUtils;
@@ -16,15 +17,18 @@ import java.util.List;
  * Created by Tom on 23/03/2018.
  */
 
-public class MovieServiceVideoURL extends AsyncTask<Integer, Void, String> {
+public class MovieServiceVideoReview extends AsyncTask<Integer, Void, Bundle> {
 
     private static final String TAG = MovieServiceSimple.class.getCanonicalName();
     private Context context = null;
     private List<MovieSimple> movies;
     private AsyncTaskDelegate asyncTaskDelegate;
+    public static final int MODO_VIDEOS = 1;
+    public static final int MODO_REVIEWS = 2;
 
 
-    public MovieServiceVideoURL(Context context, AsyncTaskDelegate asyncTaskDelegate){
+
+    public MovieServiceVideoReview(Context context, AsyncTaskDelegate asyncTaskDelegate){
         this.context = context;
         this.asyncTaskDelegate = asyncTaskDelegate;
     }
@@ -32,31 +36,32 @@ public class MovieServiceVideoURL extends AsyncTask<Integer, Void, String> {
 
 
     @Override
-    protected String doInBackground(Integer... params) {
-
-
-        URL videosUrl = NetworkUtils.videosUrl(params[0]);
-
-
+    protected Bundle doInBackground(Integer... params) {
+        URL url;
+        String modo;
+        if(params[0] == MODO_REVIEWS){
+            url = NetworkUtils.reviewsUrl(params[1]);
+            modo = Integer.toString(MODO_REVIEWS);
+        }else if(params[0] == MODO_VIDEOS){
+            url = NetworkUtils.videosUrl(params[1]);
+            modo = Integer.toString(MODO_VIDEOS);
+        }else
+            return null;
         String json = null;
         try {
-            json = NetworkUtils.getResponseFromHttpUrl(videosUrl);
+            json = NetworkUtils.getResponseFromHttpUrl(url);
         } catch (IOException e){
             e.printStackTrace();
 
         }
         Log.d(TAG, "JSON = " + json);
-        movies = null;
-        try{
-            movies = NetworkUtils.parseSimple(json);
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return json;
+        Bundle b = new Bundle();
+        b.putString(modo, json);
+        return b;
     }
 
     @Override
-    protected void onPostExecute(String response) {
+    protected void onPostExecute(Bundle response) {
         if(asyncTaskDelegate != null)
             asyncTaskDelegate.processFinish(response);
     }

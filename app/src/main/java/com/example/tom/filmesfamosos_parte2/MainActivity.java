@@ -3,7 +3,6 @@ package com.example.tom.filmesfamosos_parte2;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -36,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private int MODO_FAVORITOS = 2;
     private int MODO_ATUAL = MODO_TOPRATED;
     private String MODO = "modo anterior";
+    private static final String MODO_ATUAL_CALLBACK_STRING = "modoatual_callback";
 
 
     @Override
@@ -52,10 +52,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mRecyclerView.setHasFixedSize(true);
         mMoviesAdapter = new MoviesAdapter(this, this);
         mRecyclerView.setAdapter(mMoviesAdapter);
-        MODO_ATUAL = MODO_POPULARITY;
-        loadMoviesData(getResources().getInteger(R.integer.PAGINA_INICIO), MODO_ATUAL);
-        PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
-
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -66,6 +62,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 }
             }
         });
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(MODO_ATUAL_CALLBACK_STRING)) {
+                MODO_ATUAL = savedInstanceState.getInt(MODO_ATUAL_CALLBACK_STRING);
+            }
+        }else{
+            MODO_ATUAL = MODO_POPULARITY;
+        }
+        loadMoviesData(getResources().getInteger(R.integer.PAGINA_INICIO), MODO_ATUAL);
+        PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
     }
 
 
@@ -186,6 +192,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(MODO_ATUAL_CALLBACK_STRING, MODO_ATUAL);
     }
 
 

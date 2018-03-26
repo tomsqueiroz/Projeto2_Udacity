@@ -9,15 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.tom.filmesfamosos_parte2.data.MovieContentProvider;
 import com.example.tom.filmesfamosos_parte2.data.MovieContract;
@@ -31,8 +26,6 @@ import java.net.URL;
 import java.util.List;
 
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_DESCRIPTION;
-import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_GENRE;
-import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_LENGTH;
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_MOVIE_ID;
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_POSTERPATH;
 import static com.example.tom.filmesfamosos_parte2.data.MovieContract.MovieEntry.COLUMN_RATE;
@@ -68,22 +61,18 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
         MODO_ANTERIOR = i.getIntExtra(MODO, 1);
         loadMovie(id);
         mContentProvider = new MovieContentProvider();
-
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_trailers);
     }
 
-    //COMO UNICO ITEM DE MENU NESSA ACTIVITY EH O BACK BUTTON
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
         if(id == android.R.id.home){
             Intent intent = new Intent();
             intent.putExtra(MODO, MODO_ANTERIOR);
             setResult(0, intent);
             finish();
-
         }
         return true;
     }
@@ -115,22 +104,18 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
     }
 
     public void showMovie(Cursor cursor){
-
         cursor.moveToFirst();
         for(int i = 0; i < cursor.getCount(); ++i){
             int movieId = cursor.getInt(cursor.getColumnIndex(COLUMN_MOVIE_ID));
             String movieTitle = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
             String moviePosterPath = cursor.getString(cursor.getColumnIndex(COLUMN_POSTERPATH));
             String movieYear = Integer.toString(cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR)));
-            int movieLength = cursor.getInt(cursor.getColumnIndex(COLUMN_LENGTH));
             int movieRate = cursor.getInt(cursor.getColumnIndex(COLUMN_RATE));
             String movieDescription = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
-            String movieGenre = cursor.getString(cursor.getColumnIndex(COLUMN_GENRE));
             Movie mov = new Movie(0, movieId, true, movieRate, movieTitle, 0, moviePosterPath, null, null, null, null, false, movieDescription, movieYear);
             cursor.moveToNext();
             processFinish(mov);
         }
-
     }
 
 
@@ -176,21 +161,22 @@ public class DetailsActivity extends AppCompatActivity implements AsyncTaskDeleg
             mDetailsBinding.descricaoFilme.setText(movie.getOverview());
             mDetailsBinding.viewLight.setVisibility(View.VISIBLE);
             mDetailsBinding.labelTrailers.setVisibility(View.VISIBLE);
-            new MovieServiceVideoURL(this, this).execute(movie.getId());
-        }else if(output instanceof String){
-            try {
-                youtubeURLS = NetworkUtils.parseVideoURLS((String) output)  ;
-            } catch (JSONException e) {
-                e.printStackTrace();
+            new MovieServiceVideoReview(this, this).execute(new Integer[]{MovieServiceVideoReview.MODO_REVIEWS, movie.getId()});
+            new MovieServiceVideoReview(this, this).execute(new Integer[]{MovieServiceVideoReview.MODO_VIDEOS, movie.getId()});
+        }else if(output instanceof Bundle){
+            if(((Bundle) output).getString(Integer.toString(MovieServiceVideoReview.MODO_VIDEOS)) != null){
+                try {
+                    youtubeURLS = NetworkUtils.parseVideoURLS(((Bundle)output).getString(Integer.toString(MovieServiceVideoReview.MODO_VIDEOS)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+                mRecyclerView.setLayoutManager(layoutManager);
+                mRecyclerView.setHasFixedSize(true);
+                TrailersAdapter trailersAdapter = new TrailersAdapter(this, this, youtubeURLS.size());
+                mRecyclerView.setAdapter(trailersAdapter);
             }
-
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            mRecyclerView.setLayoutManager(layoutManager);
-            mRecyclerView.setHasFixedSize(true);
-            TrailersAdapter trailersAdapter = new TrailersAdapter(this, this, youtubeURLS.size());
-            mRecyclerView.setAdapter(trailersAdapter);
         }
-
     }
 
     public void onClickFavorito(View view){

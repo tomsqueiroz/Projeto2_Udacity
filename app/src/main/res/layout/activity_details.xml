@@ -93,7 +93,7 @@
                 android:textColor="@color/colorPrimaryLight"
                 app:layout_constraintLeft_toRightOf="@id/poster"
                 app:layout_constraintTop_toBottomOf="@id/notaFilme"
-                android:onClick="onClick"
+                android:onClick="onClickFavorito"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -150,6 +150,19 @@
                 android:layout_height="wrap_content"
                 android:visibility="invisible"
                 android:id="@+id/filmeId"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/filmeReviews"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rv_trailers"
+                android:layout_marginTop="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                />
+
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </layout>

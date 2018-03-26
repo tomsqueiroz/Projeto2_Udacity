@@ -41,6 +41,7 @@ public class NetworkUtils {
 
 
 
+
    /****************YOUR API KEY HERE**************************/
     private static String APIKEY = "YOUR API KEY HERE";
 
@@ -126,6 +127,21 @@ public class NetworkUtils {
     }
 
 
+    public static URL reviewsUrl(int id){
+        Uri builtUri = Uri.parse(MOVIE_BASE_URL + "/" + Integer.toString(id) + "/reviews").buildUpon()
+                .appendQueryParameter(APIKEY_PARAM, APIKEY)
+                .build();
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        }catch (MalformedURLException e){
+            e.printStackTrace();
+        }
+        Log.d(TAG, "URL = " + url);
+        return url;
+    }
+
+
 
     public static URL posterUrl(String poster){
         Uri builtUri = Uri.parse(POSTER_BASE_URL + poster).buildUpon().build();
@@ -190,6 +206,22 @@ public class NetworkUtils {
             e.printStackTrace();
         }
         return url;
+    }
+
+    public static List<URL> parseReviewsURLS(String json) throws JSONException{
+        final String RESULTS_LIST = "results";
+        final String KEY = "key";
+        JSONObject videosURLJson = new JSONObject(json);
+        List<URL> listaURLS = new ArrayList<>();
+        JSONArray videosARRAy = videosURLJson.getJSONArray(RESULTS_LIST);
+        String linkVideo;
+
+        for(int i = 0; i < videosARRAy.length(); ++i){
+            JSONObject videosObject = videosARRAy.getJSONObject(i);
+            linkVideo = videosObject.getString(KEY);
+            listaURLS.add(parseYoutubeURLS(linkVideo));
+        }
+        return listaURLS;
     }
 
 
