@@ -38,7 +38,7 @@ public class MovieServiceSimple extends AsyncTask<Integer, Void, List<MovieSimpl
         if(params[0] == context.getResources().getInteger(R.integer.MODO_POPULARITY))
             movies_url = NetworkUtils.allMovies_URl(NetworkUtils.sort_popularity, params[1]);
         if(params[0] == context.getResources().getInteger(R.integer.MODO_TOPRATED))
-            movies_url = NetworkUtils.allMovies_URl(NetworkUtils.sort_vote_average, params[1]);
+            movies_url = NetworkUtils.allMovies_URl(NetworkUtils.SORT_TOP_RATED, params[1]);
 
         String json = null;
         try {

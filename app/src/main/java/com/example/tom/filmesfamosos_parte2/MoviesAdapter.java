@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,8 +21,8 @@ import java.util.List;
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.Movies_AdapterViewHolder>{
 
     private final Movies_AdapterOnClickHandler mClickHandler;
-    private List<URL> urls;
-    private List<Integer> ids;
+    private ArrayList<String> urls;
+    private ArrayList<Integer> ids;
     private Context context;
 
 
@@ -44,8 +45,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.Movies_Ada
             mProgbar =  view.findViewById(R.id.item_progressbar);
             view.setOnClickListener(this);
         }
-
-
         @Override
         public void onClick(View view) {
             int adapter_pos = getAdapterPosition();
@@ -67,8 +66,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.Movies_Ada
 
     @Override
     public void onBindViewHolder(Movies_AdapterViewHolder holder, int position) {
-        URL url = urls.get(position);
-        Picasso.with(context).load(url.toString()).into(holder.mImage);
+        Picasso.with(context).load(urls.get(position)).into(holder.mImage);
         holder.mProgbar.setVisibility(View.INVISIBLE);
     }
 
@@ -78,8 +76,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.Movies_Ada
         return urls.size();
     }
 
-
-    public void setImages(List<URL> urls, List<Integer> ids){
+    public void setImages(ArrayList<String> urls, ArrayList<Integer> ids){
         this.urls = urls;
         this.ids = ids;
         notifyDataSetChanged();

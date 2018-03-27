@@ -53,7 +53,7 @@ public class NetworkUtils {
     private static String PAGE_PARAM = "page";
 
     public static String sort_popularity = "popularity.desc";
-    public static String sort_vote_average = "vote_average.desc";
+    public static String SORT_TOP_RATED = "top_rated.desc";
 
 
     private static String JSON_response;

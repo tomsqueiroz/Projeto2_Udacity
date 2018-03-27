@@ -24,31 +24,33 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.Movies_AdapterOnClickHandler, AsyncTaskDelegate {
 
     private RecyclerView mRecyclerView;
+    private GridLayoutManager layoutManager;
     private MoviesAdapter mMoviesAdapter;
     private ProgressBar progressBar;
     private static final String TAG = MainActivity.class.getCanonicalName();
     private int PAGINA_ATUAL;
-    private List<URL> urls;
-    private List<Integer> ids;
+    private ArrayList<String> urls;
+    private ArrayList<Integer> ids;
     private int MODO_POPULARITY = 0;
     private int MODO_TOPRATED = 1;
     private int MODO_FAVORITOS = 2;
     private int MODO_ATUAL = MODO_TOPRATED;
+    private int ITEM_ATUAL = 0;
     private String MODO = "modo anterior";
     private static final String MODO_ATUAL_CALLBACK_STRING = "modoatual_callback";
     private static final String PAGINA_ATUAL_CALLBACK_STRING = "paginaatual_callback";
+    private static final String ITEM_ATUAL_CALLBACK_STRING = "itematual_callback";
+    private static final String LIST_URLS_ATUAL_CALLBACK_STRING = "urlatual_callback";
+    private static final String LIST_IDS_ATUAL_CALLBACK_STRING = "idatual_callback";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        urls = new ArrayList<>();
-        ids = new ArrayList<>();
         progressBar = (ProgressBar) findViewById(R.id.main_progressBar);
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        layoutManager = new GridLayoutManager(this, 3);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mMoviesAdapter = new MoviesAdapter(this, this);
@@ -63,20 +65,23 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 }
             }
         });
-
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(MODO_ATUAL_CALLBACK_STRING)) {
                 MODO_ATUAL = savedInstanceState.getInt(MODO_ATUAL_CALLBACK_STRING);
                 PAGINA_ATUAL = savedInstanceState.getInt(PAGINA_ATUAL_CALLBACK_STRING);
+                ITEM_ATUAL = savedInstanceState.getInt(ITEM_ATUAL_CALLBACK_STRING);
+                urls = savedInstanceState.getStringArrayList(LIST_URLS_ATUAL_CALLBACK_STRING);
+                ids = savedInstanceState.getIntegerArrayList(LIST_IDS_ATUAL_CALLBACK_STRING);
             }
         }else{
             MODO_ATUAL = MODO_POPULARITY;
             PAGINA_ATUAL = getResources().getInteger(R.integer.PAGINA_INICIO);
+            ITEM_ATUAL = 0;
+            urls = new ArrayList<>();
+            ids = new ArrayList<>();
         }
         loadMoviesData(PAGINA_ATUAL, MODO_ATUAL);
     }
-
-
     public void loadMoviesData(int inicio, int mode){
 
         if(NetworkUtils.connection_ok(getApplicationContext()) && mode != MODO_FAVORITOS){
@@ -112,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             cursor.moveToFirst();
             for(int i = 0; i < cursor.getCount(); ++i){
                 URL posterPath = NetworkUtils.posterUrl(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERPATH)));
-                urls.add(posterPath);
+                urls.add(posterPath.toString());
                 ids.add(cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID)));
                 cursor.moveToNext();
             }
@@ -154,14 +159,18 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             List<MovieSimple> movies_data = (List<MovieSimple>) output;
 
             for (int i = 0; i < movies_data.size(); ++i) {
-                urls.add(NetworkUtils.posterUrl(movies_data.get(i).getPost_path()));
+                urls.add(NetworkUtils.posterUrl(movies_data.get(i).getPost_path()).toString());
                 ids.add(movies_data.get(i).getId());
             }
             progressBar.setVisibility(View.INVISIBLE);
             mMoviesAdapter.setImages(urls, ids);
+            if(ITEM_ATUAL != -1 && ITEM_ATUAL != 0){
+                layoutManager.scrollToPosition(ITEM_ATUAL);
+                ITEM_ATUAL = -1;
+            }
         }
 
-    }
+}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -209,6 +218,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         super.onSaveInstanceState(outState);
         outState.putInt(MODO_ATUAL_CALLBACK_STRING, MODO_ATUAL);
         outState.putInt(PAGINA_ATUAL_CALLBACK_STRING, PAGINA_ATUAL);
+        outState.putInt(ITEM_ATUAL_CALLBACK_STRING, layoutManager.findFirstCompletelyVisibleItemPosition());
+        outState.putStringArrayList(LIST_URLS_ATUAL_CALLBACK_STRING, urls);
+        outState.putIntegerArrayList(LIST_IDS_ATUAL_CALLBACK_STRING, ids);
     }
 
 
